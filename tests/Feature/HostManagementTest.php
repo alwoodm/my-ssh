@@ -36,3 +36,18 @@ test('host:list displays hosts', function () {
         )
         ->assertExitCode(0);
 });
+
+test('user:add attaches user to host', function () {
+    $host = Host::create(['alias' => 'prod', 'hostname' => '1.1.1.1']);
+    $host->users()->create(['username' => 'admin', 'password' => 'secret']);
+
+    $this->artisan('user:add prod')
+        ->expectsQuestion('Username', 'deployer')
+        ->expectsQuestion('Password', 'newpass')
+        ->assertExitCode(0);
+
+    $this->assertDatabaseHas('server_users', [
+        'host_id' => $host->id,
+        'username' => 'deployer',
+    ]);
+});
