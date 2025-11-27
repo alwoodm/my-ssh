@@ -1,7 +1,13 @@
 {
-    "name": "my-ssh",
+    "name": "alwood/my-ssh",
     "description": "An app to manage SSH connections",
-    "keywords": ["framework", "laravel", "laravel zero", "console", "cli"],
+    "keywords": [
+        "framework",
+        "laravel",
+        "laravel zero",
+        "console",
+        "cli"
+    ],
     "homepage": "https://laravel-zero.com",
     "type": "project",
     "license": "MIT",
@@ -11,14 +17,16 @@
     },
     "authors": [
         {
-            "name": "Nuno Maduro",
-            "email": "enunomaduro@gmail.com"
+            "name": "Aleksander Lis",
+            "email": "aleksander.lis@alwood.dev"
         }
     ],
     "require": {
         "php": "^8.2",
         "illuminate/database": "^12.17",
-        "laravel-zero/framework": "^12.0.2"
+        "illuminate/encryption": "^12.40",
+        "laravel-zero/framework": "^12.0.2",
+        "laravel/prompts": "^0.3.8"
     },
     "require-dev": {
         "captainhook/captainhook": "^5.27",
@@ -49,12 +57,14 @@
         }
     },
     "scripts": {
-        "start": "php my-ssh",
+        "start": "php myssh",
         "test": "vendor/bin/pest",
         "lint": "vendor/bin/duster lint",
         "fix": "vendor/bin/duster fix"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "bin": ["my-ssh"]
+    "bin": [
+        "myssh"
+    ]
 }
