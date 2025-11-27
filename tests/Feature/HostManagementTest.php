@@ -75,3 +75,42 @@ test('host:edit updates alias', function () {
 
     $this->assertDatabaseHas('hosts', ['alias' => 'newalias']);
 });
+
+test('connect accepts user argument', function () {
+    $host = Host::create(['alias' => 'prod', 'hostname' => '1.1.1.1']);
+    $host->users()->create(['username' => 'admin', 'password' => 'secret']);
+
+    $this->artisan('connect prod admin')
+        ->expectsOutput('Connecting to prod (admin@1.1.1.1)...')
+        ->assertExitCode(0);
+});
+
+test('host:edit accepts user argument', function () {
+    $host = Host::create(['alias' => 'prod', 'hostname' => '1.1.1.1']);
+    $host->users()->create(['username' => 'admin', 'password' => 'secret']);
+
+    $this->artisan('host:edit prod admin')
+        ->expectsQuestion('Managing User: admin', 'edit_password')
+        ->expectsQuestion('New Password', 'newsecret')
+        ->expectsQuestion('Managing User: admin', 'back')
+        ->assertExitCode(0);
+
+    $this->assertDatabaseHas('server_users', [
+        'username' => 'admin',
+        'password' => 'newsecret', // Encrypted but we check existence
+    ]);
+});
+
+test('host:delete accepts user argument', function () {
+    $host = Host::create(['alias' => 'prod', 'hostname' => '1.1.1.1']);
+    $host->users()->create(['username' => 'admin', 'password' => 'secret']);
+    $host->users()->create(['username' => 'user2', 'password' => 'secret']);
+
+    $this->artisan('host:delete prod admin')
+        ->expectsConfirmation("Are you sure you want to delete user 'admin' from host 'prod'?", 'yes')
+        ->assertExitCode(0);
+
+    $this->assertDatabaseMissing('server_users', ['username' => 'admin']);
+    $this->assertDatabaseHas('server_users', ['username' => 'user2']);
+    $this->assertDatabaseHas('hosts', ['alias' => 'prod']);
+});

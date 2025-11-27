@@ -6,6 +6,7 @@ use App\Models\Host;
 use Illuminate\Support\Facades\DB;
 use LaravelZero\Framework\Commands\Command;
 
+use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\text;
@@ -17,7 +18,7 @@ class HostAddCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'host:add';
+    protected $signature = 'host:add {alias? : The host alias} {hostname? : The hostname or IP} {user? : The username}';
 
     /**
      * The description of the command.
@@ -31,7 +32,7 @@ class HostAddCommand extends Command
      */
     public function handle(): void
     {
-        $alias = text(
+        $alias = $this->argument('alias') ?? text(
             label: 'Host Alias',
             placeholder: 'e.g. production',
             required: true,
@@ -41,13 +42,20 @@ class HostAddCommand extends Command
             }
         );
 
-        $hostname = text(
+        // If alias was provided as argument, we still need to validate it
+        if ($this->argument('alias') && Host::where('alias', $alias)->exists()) {
+            error('This alias is already taken.');
+
+            return;
+        }
+
+        $hostname = $this->argument('hostname') ?? text(
             label: 'Hostname / IP',
             placeholder: 'e.g. 192.168.1.1 or example.com',
             required: true
         );
 
-        $username = text(
+        $username = $this->argument('user') ?? text(
             label: 'Username',
             required: true
         );

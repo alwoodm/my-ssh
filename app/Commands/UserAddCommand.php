@@ -18,7 +18,7 @@ class UserAddCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'user:add {alias? : The host alias}';
+    protected $signature = 'user:add {alias? : The host alias} {username? : The username}';
 
     /**
      * The description of the command.
@@ -56,14 +56,24 @@ class UserAddCommand extends Command
             return;
         }
 
-        $username = text(
-            label: 'Username',
-            required: true,
-            validate: fn (string $value) => match (true) {
-                $host->users()->where('username', $value)->exists() => 'This user already exists for this host.',
-                default => null,
+        $username = $this->argument('username');
+
+        if ($username) {
+            if ($host->users()->where('username', $username)->exists()) {
+                error('This user already exists for this host.');
+
+                return;
             }
-        );
+        } else {
+            $username = text(
+                label: 'Username',
+                required: true,
+                validate: fn (string $value) => match (true) {
+                    $host->users()->where('username', $value)->exists() => 'This user already exists for this host.',
+                    default => null,
+                }
+            );
+        }
 
         $password = password(
             label: 'Password',

@@ -15,13 +15,14 @@ use function Laravel\Prompts\text;
 
 class HostEditCommand extends Command
 {
-    protected $signature = 'host:edit {alias? : The host alias}';
+    protected $signature = 'host:edit {alias? : The host alias} {user? : The user to edit}';
 
     protected $description = 'Edit a host and manage its users';
 
     public function handle(): void
     {
         $alias = $this->argument('alias');
+        $targetUser = $this->argument('user');
 
         if (! $alias) {
             $aliases = Host::pluck('alias')->toArray();
@@ -41,6 +42,20 @@ class HostEditCommand extends Command
 
         if (! $host) {
             error("Host '{$alias}' not found.");
+
+            return;
+        }
+
+        // Direct jump to user edit
+        if ($targetUser) {
+            $user = $host->users()->where('username', $targetUser)->first();
+            if (! $user) {
+                error("User '{$targetUser}' not found for host '{$alias}'.");
+
+                return;
+            }
+
+            $this->manageSingleUser($user);
 
             return;
         }

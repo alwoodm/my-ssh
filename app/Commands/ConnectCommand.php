@@ -11,7 +11,7 @@ use function Laravel\Prompts\select;
 
 class ConnectCommand extends Command
 {
-    protected $signature = 'connect {alias? : The host alias} {--u|user= : Optional specific user}';
+    protected $signature = 'connect {alias? : The host alias} {user? : The specific user} {--u|user= : (Deprecated) Optional specific user}';
     protected $description = 'Connect to a host via SSH';
 
     public function handle(): void
@@ -48,7 +48,7 @@ class ConnectCommand extends Command
         // Update host last login time
         $host->update(['last_login_at' => now()]);
 
-        $username = $this->option('user');
+        $username = $this->argument('user') ?: $this->option('user');
         $user = null;
 
         if ($username) {

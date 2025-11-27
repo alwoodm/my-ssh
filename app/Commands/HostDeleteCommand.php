@@ -17,14 +17,14 @@ class HostDeleteCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'host:delete {alias? : The host alias}';
+    protected $signature = 'host:delete {alias? : The host alias} {user? : The user to delete}';
 
     /**
      * The description of the command.
      *
      * @var string
      */
-    protected $description = 'Delete a host and its users';
+    protected $description = 'Delete a host or a specific user';
 
     /**
      * Execute the console command.
@@ -32,6 +32,7 @@ class HostDeleteCommand extends Command
     public function handle(): void
     {
         $alias = $this->argument('alias');
+        $targetUser = $this->argument('user');
 
         if (! $alias) {
             $aliases = Host::pluck('alias')->toArray();
@@ -51,6 +52,31 @@ class HostDeleteCommand extends Command
 
         if (! $host) {
             error("Host '{$alias}' not found.");
+
+            return;
+        }
+
+        if ($targetUser) {
+            $user = $host->users()->where('username', $targetUser)->first();
+            if (! $user) {
+                error("User '{$targetUser}' not found for host '{$alias}'.");
+
+                return;
+            }
+
+            $confirmed = confirm(
+                label: "Are you sure you want to delete user '{$targetUser}' from host '{$alias}'?",
+                default: false,
+                yes: 'Yes, delete it',
+                no: 'No, cancel'
+            );
+
+            if ($confirmed) {
+                $user->delete();
+                info("User '{$targetUser}' deleted successfully.");
+            } else {
+                info('Deletion cancelled.');
+            }
 
             return;
         }
