@@ -29,9 +29,9 @@ test('host:list displays hosts', function () {
 
     $this->artisan('host:list')
         ->expectsTable(
-            ['Alias', 'Hostname', 'Users'],
+            ['Alias', 'Hostname', 'Users', 'Last Login'],
             [
-                ['prod', '1.1.1.1', 'user1'],
+                ['prod', '1.1.1.1', 'user1', 'Never'],
             ]
         )
         ->assertExitCode(0);

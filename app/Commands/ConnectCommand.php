@@ -19,7 +19,12 @@ class ConnectCommand extends Command
         $alias = $this->argument('alias');
 
         if (! $alias) {
-            $aliases = Host::pluck('alias')->toArray();
+            // Sort hosts by the most recent login
+            $aliases = Host::orderByDesc('last_login_at')
+                ->orderBy('alias')
+                ->pluck('alias')
+                ->toArray();
+
             if (empty($aliases)) {
                 error('No hosts found.');
 
@@ -40,6 +45,9 @@ class ConnectCommand extends Command
             return;
         }
 
+        // Update host last login time
+        $host->update(['last_login_at' => now()]);
+
         $username = $this->option('user');
         $user = null;
 
@@ -51,7 +59,9 @@ class ConnectCommand extends Command
                 return;
             }
         } else {
-            $users = $host->users;
+            // Sort users by last login
+            $users = $host->users()->orderByDesc('last_login_at')->orderBy('username')->get();
+
             if ($users->isEmpty()) {
                 error("No users found for host '{$alias}'.");
 
@@ -68,6 +78,9 @@ class ConnectCommand extends Command
                 $user = $users->where('username', $selectedUsername)->first();
             }
         }
+
+        // Update user last login time
+        $user->update(['last_login_at' => now()]);
 
         $password = $user->password; // Decrypted via cast
         $target = "{$user->username}@{$host->hostname}";

@@ -11,6 +11,7 @@ class ServerUser extends Model
 
     protected $casts = [
         'password' => 'encrypted',
+        'last_login_at' => 'datetime',
     ];
 
     public function host(): BelongsTo

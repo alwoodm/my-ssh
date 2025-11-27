@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('alias')->unique();
             $table->string('hostname');
             $table->timestamps();
+            $table->timestamp('last_login_at')->nullable();
         });
     }
 

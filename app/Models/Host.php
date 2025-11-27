@@ -9,6 +9,10 @@ class Host extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'last_login_at' => 'datetime',
+    ];
+
     public function users(): HasMany
     {
         return $this->hasMany(ServerUser::class);
