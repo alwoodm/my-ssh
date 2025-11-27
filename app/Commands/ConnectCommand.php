@@ -72,22 +72,46 @@ class ConnectCommand extends Command
         $password = $user->password; // Decrypted via cast
         $target = "{$user->username}@{$host->hostname}";
 
-        // Check for sshpass
-        $hasSshpass = ! empty(shell_exec('which sshpass'));
+        info("Connecting to {$alias} ({$target})...");
 
-        if ($hasSshpass) {
-            // Securely pass password via environment variable to avoid process listing exposure
+        // Strategy 1: sshpass
+        if (! empty(shell_exec('which sshpass'))) {
+            info('Using strategy: sshpass');
             $cmd = "SSHPASS='{$password}' sshpass -e ssh {$target}";
-        } else {
-            info('sshpass not found. Running standard ssh command.');
+        }
+        // Strategy 2: Clipboard (macOS pbcopy)
+        elseif (! empty(shell_exec('which pbcopy'))) {
+            info('Using strategy: clipboard');
+
+            // Copy password to clipboard
+            $proc = proc_open('pbcopy', [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes);
+            if (is_resource($proc)) {
+                fwrite($pipes[0], $password);
+                fclose($pipes[0]);
+                proc_close($proc);
+                info('Password copied to clipboard! Paste it when prompted.');
+            } else {
+                error('Failed to access clipboard.');
+            }
+
+            $cmd = "ssh {$target}";
+        }
+        // Strategy 3: Manual fallback
+        else {
+            info('Using strategy: manual');
+            info("Neither 'sshpass' nor 'expect' found. You will need to type the password manually.");
             info("Password: {$password}");
             $cmd = "ssh {$target}";
         }
 
-        info("Connecting to {$alias} ({$target})...");
-
         if (app()->runningUnitTests()) {
-            info("Command: {$cmd}");
+            // For testing, we just want to see which command was generated
+            // We simplify the expect command output for easier assertion
+            if (str_contains($cmd, 'expect')) {
+                info('Command: expect script execution');
+            } else {
+                info("Command: {$cmd}");
+            }
 
             return;
         }
