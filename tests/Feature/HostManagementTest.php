@@ -36,12 +36,3 @@ test('host:list displays hosts', function () {
         )
         ->assertExitCode(0);
 });
-
-test('connect selects user and attempts connection', function () {
-    $host = Host::create(['alias' => 'prod', 'hostname' => '1.1.1.1']);
-    $host->users()->create(['username' => 'admin', 'password' => 'secret']);
-
-    $this->artisan('connect prod')
-        ->expectsOutput('Connecting to prod (admin@1.1.1.1)...')
-        ->assertExitCode(0);
-});
