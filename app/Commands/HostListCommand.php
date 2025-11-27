@@ -43,13 +43,12 @@ class HostListCommand extends Command
             return [
                 $host->alias,
                 $host->hostname,
-                $host->port,
                 $users,
             ];
         })->toArray();
 
         table(
-            headers: ['Alias', 'Hostname', 'Port', 'Users'],
+            headers: ['Alias', 'Hostname', 'Users'],
             rows: $rows
         );
     }

@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('alias')->unique();
             $table->string('hostname');
-            $table->integer('port')->default(22);
             $table->timestamps();
         });
     }

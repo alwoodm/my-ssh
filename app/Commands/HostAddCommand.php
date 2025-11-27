@@ -47,12 +47,6 @@ class HostAddCommand extends Command
             required: true
         );
 
-        $port = text(
-            label: 'Port',
-            default: '22',
-            validate: fn (string $value) => is_numeric($value) ? null : 'Port must be a number.'
-        );
-
         $username = text(
             label: 'Username',
             required: true
@@ -63,11 +57,10 @@ class HostAddCommand extends Command
             required: true
         );
 
-        DB::transaction(function () use ($alias, $hostname, $port, $username, $password) {
+        DB::transaction(function () use ($alias, $hostname, $username, $password) {
             $host = Host::create([
                 'alias' => $alias,
                 'hostname' => $hostname,
-                'port' => (int) $port,
             ]);
 
             $host->users()->create([

@@ -70,7 +70,6 @@ class ConnectCommand extends Command
         }
 
         $password = $user->password; // Decrypted via cast
-        $port = $host->port;
         $target = "{$user->username}@{$host->hostname}";
 
         // Check for sshpass
@@ -78,14 +77,20 @@ class ConnectCommand extends Command
 
         if ($hasSshpass) {
             // Securely pass password via environment variable to avoid process listing exposure
-            $cmd = "SSHPASS='{$password}' sshpass -e ssh -p {$port} {$target}";
+            $cmd = "SSHPASS='{$password}' sshpass -e ssh {$target}";
         } else {
             info('sshpass not found. Running standard ssh command.');
             info("Password: {$password}");
-            $cmd = "ssh -p {$port} {$target}";
+            $cmd = "ssh {$target}";
         }
 
         info("Connecting to {$alias} ({$target})...");
+
+        if (app()->runningUnitTests()) {
+            info("Command: {$cmd}");
+
+            return;
+        }
 
         passthru($cmd);
     }
