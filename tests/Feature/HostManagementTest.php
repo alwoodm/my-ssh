@@ -51,3 +51,27 @@ test('user:add attaches user to host', function () {
         'username' => 'deployer',
     ]);
 });
+
+test('host:delete removes host and users', function () {
+    $host = Host::create(['alias' => 'todelete', 'hostname' => '1.1.1.1']);
+    $host->users()->create(['username' => 'user1', 'password' => 'pass']);
+
+    $this->artisan('host:delete todelete')
+        ->expectsConfirmation("Are you sure you want to delete host 'todelete' and all its users?", 'yes')
+        ->assertExitCode(0);
+
+    $this->assertDatabaseMissing('hosts', ['alias' => 'todelete']);
+    $this->assertDatabaseMissing('server_users', ['username' => 'user1']);
+});
+
+test('host:edit updates alias', function () {
+    $host = Host::create(['alias' => 'oldalias', 'hostname' => '1.1.1.1']);
+
+    $this->artisan('host:edit oldalias')
+        ->expectsQuestion('Managing Host: oldalias (1.1.1.1)', 'edit_alias')
+        ->expectsQuestion('New Alias', 'newalias')
+        ->expectsQuestion('Managing Host: newalias (1.1.1.1)', 'exit')
+        ->assertExitCode(0);
+
+    $this->assertDatabaseHas('hosts', ['alias' => 'newalias']);
+});
