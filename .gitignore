@@ -1,0 +1,12 @@
+/vendor
+/.idea
+/.vscode
+/.vagrant
+.phpunit.result.cache
+/database/database.sqlite
+
+GEMINI.md
+CODEX.md
+/.cursor
+AGENT.md
+AGENTS.md
