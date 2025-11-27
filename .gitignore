@@ -5,6 +5,8 @@
 .phpunit.result.cache
 /database/database.sqlite
 
+.env
+
 GEMINI.md
 CODEX.md
 /.cursor
