@@ -37,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
 
             $key = trim(file_get_contents($keyFile));
             config(['app.key' => $key]);
+
+            $database = $path . '/database.sqlite';
+            config(['database.connections.sqlite.database' => $database]);
         }
 
         $this->app->register(\Illuminate\Database\DatabaseServiceProvider::class);

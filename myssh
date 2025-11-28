@@ -15,20 +15,33 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
-$autoloader = require file_exists(__DIR__.'/vendor/autoload.php') ?  __DIR__.'/vendor/autoload.php' : __DIR__.'/../../autoload.php';
+$autoloader = require file_exists(__DIR__ . '/vendor/autoload.php') ? __DIR__ . '/vendor/autoload.php' : __DIR__ . '/../../autoload.php';
 
-$app = require_once __DIR__.'/bootstrap/app.php';
+$app = require_once __DIR__ . '/bootstrap/app.php';
 
-/*
-|--------------------------------------------------------------------------
-| Run The Artisan Application
-|--------------------------------------------------------------------------
-|
-| When we run the console application, the current CLI command will be
-| executed in this console and the response sent back to a terminal
-| or another output device for the developers. Here goes nothing!
-|
-*/
+// Allow "myssh <alias>" shortcut by prepending "connect" if the first argument is not a command
+$inputArg = $_SERVER['argv'][1] ?? null;
+$knownCommands = [
+    'connect',
+    'host:add',
+    'host:delete',
+    'host:edit',
+    'host:list',
+    'user:add',
+    'user:delete',
+    'app:build',
+    'app:install',
+    'app:rename',
+    'list',
+    'help',
+    'key:generate',
+    'migrate',
+    'completion',
+];
+
+if ($inputArg && !in_array($inputArg, $knownCommands) && !str_starts_with($inputArg, '-')) {
+    array_splice($_SERVER['argv'], 1, 0, 'connect');
+}
 
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 
