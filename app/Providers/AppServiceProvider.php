@@ -23,7 +23,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        if (Phar::running()) {
+            $path = (getenv('HOME') ?? getenv('USERPROFILE')) . '/.myssh';
+            $keyFile = $path . '/.key';
+
+            if (! file_exists($keyFile)) {
+                if (! is_dir($path)) {
+                    mkdir($path, 0755, true);
+                }
+                $key = 'base64:' . base64_encode(random_bytes(32));
+                file_put_contents($keyFile, $key);
+            }
+
+            $key = trim(file_get_contents($keyFile));
+            config(['app.key' => $key]);
+        }
+
         $this->app->register(\Illuminate\Database\DatabaseServiceProvider::class);
+        $this->app->register(\Illuminate\Database\MigrationServiceProvider::class);
+        $this->app->register(\Illuminate\Encryption\EncryptionServiceProvider::class);
         $this->commands([
             \Illuminate\Database\Console\WipeCommand::class,
         ]);
