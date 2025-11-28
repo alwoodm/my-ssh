@@ -96,6 +96,33 @@ Your data is stored locally in `~/.myssh/database.sqlite`.
 A unique encryption key is generated on first run and stored in `~/.myssh/.key`.
 **Keep this key safe!** Without it, your encrypted passwords cannot be recovered.
 
+## Development
+
+If you want to contribute or run the project locally, feel free to fork this repository or create a new branch.
+
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/alwoodm/my-ssh.git
+    cd my-ssh
+    ```
+
+2.  **Install dependencies**:
+    ```bash
+    composer install
+    ```
+
+3.  **Setup environment**:
+    ```bash
+    cp .env.example .env
+    touch database/database.sqlite
+    php myssh key:generate
+    ```
+
+4.  **Run the application**:
+    ```bash
+    php myssh list
+    ```
+
 ## License
 
 My-SSH is open-sourced software licensed under the [MIT license](LICENSE).
