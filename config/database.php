@@ -34,7 +34,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => env('DB_DATABASE', (getenv('HOME') ?? getenv('USERPROFILE')) . '/.myssh/database.sqlite'),
             'prefix' => '',
             'prefix_indexes' => null,
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),

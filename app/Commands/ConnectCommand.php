@@ -19,7 +19,6 @@ class ConnectCommand extends Command
         $alias = $this->argument('alias');
 
         if (! $alias) {
-            // Sort hosts by the most recent login
             $aliases = Host::orderByDesc('last_login_at')
                 ->orderBy('alias')
                 ->pluck('alias')
@@ -45,7 +44,6 @@ class ConnectCommand extends Command
             return;
         }
 
-        // Update host last login time
         $host->update(['last_login_at' => now()]);
 
         $username = $this->argument('user') ?: $this->option('user');
@@ -59,7 +57,6 @@ class ConnectCommand extends Command
                 return;
             }
         } else {
-            // Sort users by last login
             $users = $host->users()->orderByDesc('last_login_at')->orderBy('username')->get();
 
             if ($users->isEmpty()) {
@@ -79,21 +76,16 @@ class ConnectCommand extends Command
             }
         }
 
-        // Update user last login time
         $user->update(['last_login_at' => now()]);
 
-        $password = $user->password; // Decrypted via cast
+        $password = $user->password;
         $target = "{$user->username}@{$host->hostname}";
 
         info("Connecting to {$alias} ({$target})...");
 
-        // Strategy 1: sshpass
         if (! empty(shell_exec('which sshpass'))) {
             $cmd = "SSHPASS='{$password}' sshpass -e ssh {$target}";
-        }
-        // Strategy 2: Clipboard (macOS pbcopy)
-        elseif (! empty(shell_exec('which pbcopy'))) {
-            // Copy password to clipboard
+        } elseif (! empty(shell_exec('which pbcopy'))) {
             if (! app()->runningUnitTests()) {
                 $proc = proc_open('pbcopy', [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes);
                 if (is_resource($proc)) {
@@ -107,17 +99,13 @@ class ConnectCommand extends Command
             }
 
             $cmd = "ssh {$target}";
-        }
-        // Strategy 3: Manual fallback
-        else {
+        } else {
             info("Neither 'sshpass' nor 'expect' found. You will need to type the password manually.");
             info("Password: {$password}");
             $cmd = "ssh {$target}";
         }
 
         if (app()->runningUnitTests()) {
-            // For testing, we just want to see which command was generated
-            // We simplify the expect command output for easier assertion
             if (str_contains($cmd, 'expect')) {
                 info('Command: expect script execution');
             } else {

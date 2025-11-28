@@ -42,7 +42,6 @@ class HostAddCommand extends Command
             }
         );
 
-        // If alias was provided as argument, we still need to validate it
         if ($this->argument('alias') && Host::where('alias', $alias)->exists()) {
             error('This alias is already taken.');
 
