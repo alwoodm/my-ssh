@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default Command
+    |--------------------------------------------------------------------------
+    |
+    | Laravel Zero will check if there is any default command that should be
+    | invoked if no command is provided.
+    |
+    */
+
+    'default-command' => App\Commands\ConnectCommand::class,
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Version
     |--------------------------------------------------------------------------
     |
