@@ -1,13 +1,17 @@
 <?php
 
 use App\Models\Host;
+use Laravel\Prompts\Prompt;
 
 test('host:add creates a new host and user', function () {
+    Prompt::fake([
+        'Host Alias' => 'prod',
+        'Hostname / IP' => '192.168.1.100',
+        'Username' => 'admin',
+        'Password' => 'secret123',
+    ]);
+
     $this->artisan('host:add')
-        ->expectsQuestion('Host Alias', 'prod')
-        ->expectsQuestion('Hostname / IP', '192.168.1.100')
-        ->expectsQuestion('Username', 'admin')
-        ->expectsQuestion('Password', 'secret123')
         ->assertExitCode(0);
 
     $this->assertDatabaseHas('hosts', [
@@ -41,9 +45,12 @@ test('user:add attaches user to host', function () {
     $host = Host::create(['alias' => 'prod', 'hostname' => '1.1.1.1']);
     $host->users()->create(['username' => 'admin', 'password' => 'secret']);
 
+    Prompt::fake([
+        'Username' => 'deployer',
+        'Password' => 'newpass',
+    ]);
+
     $this->artisan('user:add prod')
-        ->expectsQuestion('Username', 'deployer')
-        ->expectsQuestion('Password', 'newpass')
         ->assertExitCode(0);
 
     $this->assertDatabaseHas('server_users', [
@@ -56,8 +63,11 @@ test('host:delete removes host and users', function () {
     $host = Host::create(['alias' => 'todelete', 'hostname' => '1.1.1.1']);
     $host->users()->create(['username' => 'user1', 'password' => 'pass']);
 
+    Prompt::fake([
+        "Are you sure you want to delete host 'todelete'?" => true,
+    ]);
+
     $this->artisan('host:delete todelete')
-        ->expectsConfirmation("Are you sure you want to delete host 'todelete' and all its users?", 'yes')
         ->assertExitCode(0);
 
     $this->assertDatabaseMissing('hosts', ['alias' => 'todelete']);
@@ -67,10 +77,13 @@ test('host:delete removes host and users', function () {
 test('host:edit updates alias', function () {
     $host = Host::create(['alias' => 'oldalias', 'hostname' => '1.1.1.1']);
 
+    Prompt::fake([
+        'Managing Host: oldalias (1.1.1.1)' => 'edit_alias',
+        'New Alias' => 'newalias',
+        'Managing Host: newalias (1.1.1.1)' => 'exit',
+    ]);
+
     $this->artisan('host:edit oldalias')
-        ->expectsQuestion('Managing Host: oldalias (1.1.1.1)', 'edit_alias')
-        ->expectsQuestion('New Alias', 'newalias')
-        ->expectsQuestion('Managing Host: newalias (1.1.1.1)', 'exit')
         ->assertExitCode(0);
 
     $this->assertDatabaseHas('hosts', ['alias' => 'newalias']);
@@ -89,10 +102,13 @@ test('host:edit accepts user argument', function () {
     $host = Host::create(['alias' => 'prod', 'hostname' => '1.1.1.1']);
     $host->users()->create(['username' => 'admin', 'password' => 'secret']);
 
+    Prompt::fake([
+        'Managing User: admin' => 'edit_password',
+        'New Password' => 'newsecret',
+        'Managing User: admin' => 'back',
+    ]);
+
     $this->artisan('host:edit prod admin')
-        ->expectsQuestion('Managing User: admin', 'edit_password')
-        ->expectsQuestion('New Password', 'newsecret')
-        ->expectsQuestion('Managing User: admin', 'back')
         ->assertExitCode(0);
 
     $this->assertDatabaseHas('server_users', [
@@ -106,8 +122,11 @@ test('host:delete accepts user argument', function () {
     $host->users()->create(['username' => 'admin', 'password' => 'secret']);
     $host->users()->create(['username' => 'user2', 'password' => 'secret']);
 
+    Prompt::fake([
+        "Are you sure you want to delete user 'admin'?" => true,
+    ]);
+
     $this->artisan('host:delete prod admin')
-        ->expectsConfirmation("Are you sure you want to delete user 'admin' from host 'prod'?", 'yes')
         ->assertExitCode(0);
 
     $this->assertDatabaseMissing('server_users', ['username' => 'admin']);

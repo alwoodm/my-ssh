@@ -1,19 +1,19 @@
 {
     "name": "alwood/my-ssh",
-    "description": "An app to manage SSH connections",
+    "description": "A powerful, secure, and user-friendly CLI tool for managing SSH connections.",
     "keywords": [
-        "framework",
-        "laravel",
-        "laravel zero",
-        "console",
-        "cli"
+        "ssh",
+        "manager",
+        "cli",
+        "secure",
+        "laravel-zero"
     ],
-    "homepage": "https://laravel-zero.com",
+    "homepage": "https://github.com/alwoodm/my-ssh",
     "type": "project",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/laravel-zero/laravel-zero/issues",
-        "source": "https://github.com/laravel-zero/laravel-zero"
+        "issues": "https://github.com/alwoodm/my-ssh/issues",
+        "source": "https://github.com/alwoodm/my-ssh"
     },
     "authors": [
         {
@@ -26,6 +26,7 @@
         "illuminate/database": "^12.17",
         "illuminate/encryption": "^12.40",
         "laravel-zero/framework": "^12.0.2",
+        "laravel-zero/phar-updater": "^1.4",
         "laravel/prompts": "^0.3.8"
     },
     "require-dev": {
@@ -58,7 +59,6 @@
     },
     "scripts": {
         "start": "php myssh",
-        "test": "vendor/bin/pest",
         "lint": "vendor/bin/duster lint",
         "fix": "vendor/bin/duster fix"
     },

@@ -12,3 +12,9 @@ CODEX.md
 /.cursor
 AGENT.md
 AGENTS.md
+
+/builds
+/builds/*
+builds/*
+builds/myssh
+/builds/myssh

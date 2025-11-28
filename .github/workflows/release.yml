@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: sqlite3, mbstring, pdo_sqlite, xml, intl
+
+      - name: Install Dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          touch database/database.sqlite
+          php myssh key:generate
+
+      - name: Build Application
+        run: php myssh app:build myssh --build-version=${{ github.ref_name }}
+
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: builds/myssh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Homebrew Formula
+        uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: myssh
+          homebrew-tap: alwoodm/homebrew-tap
+          download-url: https://github.com/alwoodm/my-ssh/releases/download/${{ github.ref_name }}/myssh
+          commit-message: "bump: myssh ${{ github.ref_name }}"
+        env:
+          COMMITTER_TOKEN: ${{ secrets.MY_HOMEBREW_TOKEN }}

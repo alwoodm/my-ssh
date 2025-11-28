@@ -46,7 +46,6 @@ class HostEditCommand extends Command
             return;
         }
 
-        // Direct jump to user edit
         if ($targetUser) {
             $user = $host->users()->where('username', $targetUser)->first();
             if (! $user) {
@@ -61,7 +60,6 @@ class HostEditCommand extends Command
         }
 
         while (true) {
-            // Refresh host data
             $host->refresh();
 
             $action = select(
@@ -163,7 +161,6 @@ class HostEditCommand extends Command
                 continue;
             }
 
-            // Selected an existing user ID
             $user = $users->find($selected);
             if ($user) {
                 $this->manageSingleUser($user);
@@ -175,7 +172,6 @@ class HostEditCommand extends Command
     {
         while (true) {
             $user->refresh();
-            // Check if user still exists (might have been deleted)
             if (! $user->exists) {
                 break;
             }
