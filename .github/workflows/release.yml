@@ -18,11 +18,17 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: sqlite3, mbstring, pdo_sqlite
+          php-version: '8.3'
+          extensions: sqlite3, mbstring, pdo_sqlite, xml
           
       - name: Install Dependencies
         run: composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          touch database/database.sqlite
+          php myssh key:generate
 
       - name: Build Application
         run: php myssh app:build myssh --build-version=${{ github.ref_name }}

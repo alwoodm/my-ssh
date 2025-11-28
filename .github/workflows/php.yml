@@ -17,12 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # ADDED: Setup PHP environment.
-    # Ensures you have the correct PHP version and SQLite extensions installed.
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2' # Adjust if you use 8.3 locally
+        php-version: '8.3'
         extensions: sqlite3, mbstring, xml, pdo_sqlite
         coverage: none
 
@@ -45,21 +43,11 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    # ADDED: Prepare the application environment.
-    # Laravel Zero needs the .env file and a database file to boot up properly.
     - name: Prepare environment
       run: |
         cp .env.example .env
         touch database/database.sqlite
-        # Generate the application key (required for your password encryption)
-        php my-ssh key:generate
+        php myssh key:generate
 
-    # ADDED: Code Style Check (Duster)
-    # This ensures that if CaptainHook was bypassed locally, the CI will still catch bad code.
     - name: Check Code Style (Duster)
       run: ./vendor/bin/duster lint
-
-    # ADDED: Smoke Test
-    # Verifies that the application compiles and boots without crashing.
-    - name: Build Test
-      run: php my-ssh --version
