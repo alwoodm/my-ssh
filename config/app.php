@@ -71,6 +71,7 @@ return [
     'providers' => [
         App\Providers\AppServiceProvider::class,
         Illuminate\Encryption\EncryptionServiceProvider::class,
+        Illuminate\Database\DatabaseServiceProvider::class,
     ],
 
 ];

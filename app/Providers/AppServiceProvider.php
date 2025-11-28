@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Console\Application;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
+use Phar;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,7 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->register(\Illuminate\Database\DatabaseServiceProvider::class);
+        $this->commands([
+            \Illuminate\Database\Console\WipeCommand::class,
+        ]);
     }
 
     /**
@@ -30,11 +34,15 @@ class AppServiceProvider extends ServiceProvider
      */
     private function ensureDatabaseExists(): void
     {
-        $path = (getenv('HOME') ?? getenv('USERPROFILE')) . '/.myssh';
-        $database = $path . '/database.sqlite';
+        if (Phar::running()) {
+            $path = (getenv('HOME') ?? getenv('USERPROFILE')) . '/.myssh';
+            $database = $path . '/database.sqlite';
 
-        if (! is_dir($path)) {
-            mkdir($path, 0755, true);
+            if (! is_dir($path)) {
+                mkdir($path, 0755, true);
+            }
+        } else {
+            $database = database_path('database.sqlite');
         }
 
         if (! file_exists($database)) {
@@ -50,6 +58,10 @@ class AppServiceProvider extends ServiceProvider
      */
     private function hideInternalCommands(): void
     {
+        if ($this->app->runningUnitTests()) {
+            return;
+        }
+
         $commandsToHide = [
             'migrate',
             'migrate:fresh',
